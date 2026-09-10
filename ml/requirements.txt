@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+xgboost
+lightgbm
+scikit-learn
+pandas
+numpy
+python-dotenv

@@ -1,0 +1,291 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg-primary: #F8FAFC;
+  --color-bg-surface: #FFFFFF;
+  --color-text-primary: #0F172A;
+  --color-text-secondary: #64748B;
+  --color-border: #E2E8F0;
+  --color-accent: #2563EB;
+
+  --color-risk-normal: #9CA3AF;
+  --color-risk-low: #10B981;
+  --color-risk-moderate: #F59E0B;
+  --color-risk-high: #F97316;
+  --color-risk-critical: #EF4444;
+
+  --color-edi-good: #10B981;
+  --color-edi-moderate: #F59E0B;
+  --color-edi-degraded: #F97316;
+  --color-edi-critical: #EF4444;
+
+  --font-sans: Inter, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+
+/* Dark mode overrides — toggled via <html data-theme="dark">. */
+:root[data-theme="dark"] {
+  --color-bg-primary: #0F172A;
+  --color-bg-surface: #1E293B;
+  --color-text-primary: #F1F5F9;
+  --color-text-secondary: #94A3B8;
+  --color-border: #334155;
+  --color-accent: #60A5FA;
+}
+
+:root {
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+/* dvh fallback for browsers that don't support it */
+@supports not (height: 100dvh) {
+  html, body, #root {
+    height: 100vh;
+  }
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Leaflet map container */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+/* Pulse animation for critical roads */
+@keyframes pulse-road {
+  0%, 100% { opacity: 0.9; }
+  50% { opacity: 0.6; }
+}
+
+.pulse-animation {
+  animation: pulse-road 2s ease-in-out infinite;
+}
+
+/* EDI pulse animation for threshold crossings */
+@keyframes edi-pulse {
+  0% {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+}
+
+.edi-pulse-animation {
+  animation: edi-pulse 1.5s ease-in-out infinite;
+}
+
+/* Layer fusion mode colors */
+@keyframes fusion-pulse {
+  0%, 100% { opacity: 0.9; }
+  50% { opacity: 0.5; }
+}
+
+.fusion-pulse-animation {
+  animation: fusion-pulse 1.5s ease-in-out infinite;
+}
+
+/* Cluster marker pop-in on mount */
+@keyframes marker-pop {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.marker-pop-animation {
+  animation: marker-pop 0.25s ease-out;
+}
+
+/* Flash for a road segment that just received feedback */
+@keyframes segment-flash {
+  0% { opacity: 0.4; }
+  40% { opacity: 1; }
+  100% { opacity: 0.9; }
+}
+
+.segment-flash-animation {
+  animation: segment-flash 1.2s ease-in-out;
+}
+
+/* ── Route marching ants ────────────────────────────────────────────── */
+@keyframes route-dash {
+  to { stroke-dashoffset: -18; }
+}
+
+.route-polyline-animated {
+  animation: route-dash 0.8s linear infinite;
+}
+
+/* ── Time scrubber range input ─────────────────────────────────────── */
+.time-scrubber-range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  background: var(--color-border);
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+  position: relative;
+}
+
+.time-scrubber-range::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 3px;
+}
+
+.time-scrubber-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  border: 2.5px solid var(--color-bg-surface);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  cursor: grab;
+  transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease;
+  margin-top: -6px;
+}
+
+.time-scrubber-range::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4), 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+.time-scrubber-range::-webkit-slider-thumb:active {
+  transform: scale(1.25);
+  cursor: grabbing;
+  box-shadow: 0 2px 10px rgba(37, 99, 235, 0.5), 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
+.time-scrubber-range::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  border: 2.5px solid var(--color-bg-surface);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
+  cursor: grab;
+}
+
+.time-scrubber-range::-moz-range-track {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--color-border);
+}
+
+.time-scrubber-range::-moz-range-progress {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--color-accent);
+}
+
+/* ── Play button pulse when playing ────────────────────────────────── */
+@keyframes play-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.5); }
+  50% { box-shadow: 0 0 0 6px rgba(37, 99, 235, 0); }
+}
+
+.play-pulse {
+  animation: play-pulse 1.8s ease-in-out infinite;
+}
+
+/* ── Search focus glow ─────────────────────────────────────────────── */
+@keyframes search-glow {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.15), 0 2px 8px rgba(0, 0, 0, 0.06); }
+  50% { box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25), 0 4px 16px rgba(37, 99, 235, 0.08); }
+}
+
+.search-focus-glow {
+  animation: search-glow 2s ease-in-out infinite;
+  border-color: var(--color-accent) !important;
+}
+
+/* ── Spinner for search loading ────────────────────────────────────── */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--color-border);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+/* ── Smooth panel transitions ──────────────────────────────────────── */
+.panel-smooth {
+  transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1),
+              opacity 0.2s ease;
+}
+
+/* ── Button press feedback ─────────────────────────────────────────── */
+.btn-press {
+  transition: transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1),
+              background-color 0.15s ease,
+              box-shadow 0.15s ease;
+}
+.btn-press:active {
+  transform: scale(0.93);
+}
+
+/* ── FAB tooltip ───────────────────────────────────────────────────── */
+.fab-tooltip {
+  position: relative;
+}
+.fab-tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  right: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  transform: translateY(-50%) translateX(4px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  z-index: 950;
+}
+.fab-tooltip:hover::after {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
