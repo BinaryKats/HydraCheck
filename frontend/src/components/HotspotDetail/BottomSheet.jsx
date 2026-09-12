@@ -58,14 +58,7 @@ const BottomSheet = ({ isOpen, onClose, hotspot, onFeedbackSuccess }) => {
   return (
     <AnimatePresence>
       {isOpen && hotspot && (
-        <motion.div
-          key="hotspot-bottom-sheet"
-          className="fixed inset-x-0 bottom-0 z-50 h-[60vh]"
-          initial={{ y: '100%' }}
-          animate={{ y: 0 }}
-          exit={{ y: '100%' }}
-          transition={{ type: 'spring', damping: 32, stiffness: 320 }}
-        >
+        <div className="fixed inset-0 z-[1000]">
           {/* Backdrop */}
           <motion.div
             className="absolute inset-0 bg-black/50"
@@ -73,9 +66,10 @@ const BottomSheet = ({ isOpen, onClose, hotspot, onFeedbackSuccess }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
           />
 
-          {/* Sheet — draggable to dismiss */}
+          {/* Sheet — draggable to dismiss, anchored flush to bottom */}
           <motion.div
             ref={sheetRef}
             drag="y"
@@ -86,7 +80,11 @@ const BottomSheet = ({ isOpen, onClose, hotspot, onFeedbackSuccess }) => {
             onDragEnd={(_, info) => {
               if (info.offset.y > 80 && onClose) onClose()
             }}
-            className="relative bg-bg-surface rounded-t-2xl shadow-2xl h-[55vh] flex flex-col"
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', damping: 32, stiffness: 320 }}
+            className="absolute bottom-0 left-0 right-0 bg-bg-surface rounded-t-2xl shadow-2xl h-[60vh] flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Drag handle */}
@@ -98,7 +96,7 @@ const BottomSheet = ({ isOpen, onClose, hotspot, onFeedbackSuccess }) => {
             </div>
 
             <div
-              className="px-6 pb-6 space-y-5 flex-1 overflow-y-auto overscroll-contain"
+              className="px-6 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))] space-y-5 flex-1 overflow-y-auto overscroll-contain"
               style={{ WebkitOverflowScrolling: 'touch' }}
             >
               {/* Header */}
@@ -264,7 +262,7 @@ const BottomSheet = ({ isOpen, onClose, hotspot, onFeedbackSuccess }) => {
               </div>
             </div>
           </motion.div>
-        </motion.div>
+        </div>
       )}
     </AnimatePresence>
   )
