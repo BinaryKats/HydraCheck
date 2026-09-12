@@ -7,7 +7,7 @@
  */
 
 import { useState, useEffect, useRef } from 'react'
-import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion'
+import { motion, AnimatePresence, useMotionValue, useSpring, useTransform, useDragControls } from 'framer-motion'
 import { formatIST } from '../../utils/dateUtils'
 
 const RISK_COLORS = {
@@ -34,6 +34,7 @@ function AnimatedRiskScore({ value }) {
 const BottomSheet = ({ isOpen, onClose, hotspot, onFeedbackSuccess }) => {
   const [feedback, setFeedback] = useState({ state: 'idle', selected: null })
   const sheetRef = useRef(null)
+  const dragControls = useDragControls()
 
   const handleFeedback = async (isFlooded) => {
     if (!hotspot || feedback.state === 'submitting') return
@@ -78,20 +79,28 @@ const BottomSheet = ({ isOpen, onClose, hotspot, onFeedbackSuccess }) => {
           <motion.div
             ref={sheetRef}
             drag="y"
+            dragListener={false}
+            dragControls={dragControls}
             dragConstraints={{ top: 0, bottom: 0 }}
             dragElastic={{ top: 0, bottom: 0.5 }}
             onDragEnd={(_, info) => {
               if (info.offset.y > 80 && onClose) onClose()
             }}
-            className="relative bg-bg-surface rounded-t-2xl shadow-2xl h-[55vh] overflow-y-auto"
+            className="relative bg-bg-surface rounded-t-2xl shadow-2xl h-[55vh] flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Drag handle */}
-            <div className="flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing">
+            <div
+              className="flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing touch-none shrink-0"
+              onPointerDown={(e) => dragControls.start(e, { snapToCursor: false })}
+            >
               <div className="w-10 h-1 bg-border rounded-full" />
             </div>
 
-            <div className="px-6 pb-6 space-y-5">
+            <div
+              className="px-6 pb-6 space-y-5 flex-1 overflow-y-auto overscroll-contain"
+              style={{ WebkitOverflowScrolling: 'touch' }}
+            >
               {/* Header */}
               <div className="flex justify-between items-start">
                 <div>
