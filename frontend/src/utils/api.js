@@ -80,13 +80,11 @@ function toLegacyHotspotShape(loc) {
  */
 export async function getAllHotspots() {
   const fetchHotspots = async () => {
-    await withTimeout(
-      new Promise((resolve) => setTimeout(resolve, REQUEST_TIMEOUT_MS)),
+    const locations = await withTimeout(
+      dataService.getLocations(),
       REQUEST_TIMEOUT_MS,
       'Request timed out'
     )
-
-    const locations = await dataService.getLocations()
 
     // Transform to legacy hotspot format for backward compatibility
     const hotspots = locations.map(toLegacyHotspotShape)
@@ -118,13 +116,11 @@ export async function getAllHotspots() {
  */
 export async function getHotspotPrediction(hotspotId) {
   const fetchSingle = async () => {
-    await withTimeout(
-      new Promise((resolve) => setTimeout(resolve, REQUEST_TIMEOUT_MS)),
+    const location = await withTimeout(
+      dataService.getLocationById(hotspotId),
       REQUEST_TIMEOUT_MS,
       'Request timed out'
     )
-
-    const location = await dataService.getLocationById(hotspotId)
     if (!location) {
       throw new Error(`Hotspot not found: ${hotspotId}`)
     }
@@ -140,13 +136,11 @@ export async function getHotspotPrediction(hotspotId) {
  */
 export async function submitFeedback(feedback) {
   const submit = async () => {
-    await withTimeout(
-      new Promise((resolve) => setTimeout(resolve, REQUEST_TIMEOUT_MS)),
+    return await withTimeout(
+      dataService.submitFeedback(feedback),
       REQUEST_TIMEOUT_MS,
       'Request timed out'
     )
-
-    return await dataService.submitFeedback(feedback)
   }
 
   try {
