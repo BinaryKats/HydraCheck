@@ -9,7 +9,7 @@ import precomputedLocations from '../data/mock/locations-snapped.json'
 import { WaterloggingLocation, Alert, HistoricalPoint, TrendData } from '../data/types'
 
 // Configuration constants
-export const MOCK_LATENCY_MS = 250
+export const MOCK_LATENCY_MS = 50
 export const MOCK_FAILURE_MODE = 'none' // 'none' | 'network' | 'empty'
 export const MOCK_EMPTY_MODE = 'none' // 'none' | 'no-locations' | 'no-alerts'
 
